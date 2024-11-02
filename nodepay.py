@@ -33,7 +33,7 @@ def show_copyright():
 # Constants
 PING_INTERVAL = 180  # 每分钟发送一次请求
 RETRIES = 120  # 全局重试计数
-TOKEN_FILE = 'np_tokens_1.txt'  # 令牌文件名
+TOKEN_FILE = 'np_tokens.txt'  # 令牌文件名
 
 DOMAIN_API = {
     "SESSION": "https://api.nodepay.org/api/auth/session",
@@ -108,21 +108,16 @@ async def call_api(url, data, proxy, token, max_retries=3):
                     return valid_resp(resp_json)
 
             except aiohttp.ClientResponseError as e:
-                logger.error(f"API call error on attempt {
-                             attempt + 1} for proxy {proxy}: {e}")
+                logger.error(f"API call error on attempt {attempt + 1} for proxy {proxy}: {e}")
                 if e.status == 403:
-                    logger.error(f"403 Forbidden encountered on attempt {
-                                 attempt + 1}: {e}")
+                    logger.error(f"403 Forbidden encountered on attempt {attempt + 1}: {e}")
                     return None  # Skip this proxy
             except aiohttp.ClientConnectionError as e:
-                logger.error(f"Connection error on attempt {
-                             attempt + 1} for proxy {proxy}: {e}")
+                logger.error(f"Connection error on attempt {attempt + 1} for proxy {proxy}: {e}")
             except aiohttp.Timeout as e:
-                logger.error(f"Timeout on attempt {
-                             attempt + 1} for proxy {proxy}: {e}")
+                logger.error(f"Timeout on attempt {attempt + 1} for proxy {proxy}: {e}")
             except Exception as e:
-                logger.error(f"Unexpected error on attempt {
-                             attempt + 1} for proxy {proxy}: {e}")
+                logger.error(f"Unexpected error on attempt {attempt + 1} for proxy {proxy}: {e}")
 
             await asyncio.sleep(2 ** attempt)  # Exponential backoff
 
@@ -147,8 +142,7 @@ async def ping(proxy, token):
 
     current_time = time.time()
     if proxy in last_ping_time and (current_time - last_ping_time[proxy]) < PING_INTERVAL:
-        logger.info(f"Skipping ping for proxy {
-                    proxy}, not enough time elapsed")
+        logger.info(f"Skipping ping for proxy {proxy}, not enough time elapsed")
         return
 
     last_ping_time[proxy] = current_time
@@ -260,7 +254,7 @@ async def main():
         "ary": "origin,access-control-request-method,access-control-request-headers,accept-encoding",
     }
 
-    all_proxies = load_proxies('proxy_1.txt')
+    all_proxies = load_proxies('proxy.txt')
     tokens = load_tokens_from_file(TOKEN_FILE)
 
     for token in tokens:
@@ -278,8 +272,7 @@ async def main():
             for task in done:
                 failed_proxy = tasks[task]
                 if task.result() is None:
-                    logger.info(f"Removing and replacing failed proxy: {
-                                failed_proxy}")
+                    logger.info(f"Removing and replacing failed proxy: {failed_proxy}")
                     active_proxies.remove(failed_proxy)
                     if all_proxies:
                         new_proxy = all_proxies.pop(0)
